@@ -3,6 +3,8 @@ package com.miller.osWorks.api.controller;
 import java.util.List;
 import java.util.Optional;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.miller.osWorks.domain.model.Client;
 import com.miller.osWorks.domain.repository.ClientRepository;
+import com.miller.osWorks.domain.service.CrudClientService;
 
 /**
  * @author miller
@@ -27,9 +30,11 @@ import com.miller.osWorks.domain.repository.ClientRepository;
 @RequestMapping("/clients")
 public class ClientController {
 	
-	
 	@Autowired
 	private ClientRepository clientRepository;
+	
+	@Autowired
+	private CrudClientService crudClientService;
 	
 	// Returns all the clients
 	@GetMapping()
@@ -51,19 +56,19 @@ public class ClientController {
 	
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public Client add(@RequestBody Client client) {
-		return clientRepository.save(client);
+	public Client add(@Valid @RequestBody Client client) {
+		return crudClientService.save(client);
 	}
 	
 	@PutMapping("/{clientId}")
-	public ResponseEntity<Client> update(@PathVariable Long clientId, @RequestBody Client client) {
+	public ResponseEntity<Client> update(@PathVariable Long clientId, @Valid @RequestBody Client client) {
 		
 		if(!clientRepository.existsById(clientId)) {
 			return ResponseEntity.notFound().build();
 		}
 		
 		client.setId(clientId);
-		client = clientRepository.save(client);
+		client = crudClientService.save(client);
 		
 		return ResponseEntity.ok(client);
 	}
@@ -74,7 +79,7 @@ public class ClientController {
 			return ResponseEntity.notFound().build();
 		}
 		
-		clientRepository.deleteById(clientId);
+		crudClientService.delete(clientId);
 		
 		return ResponseEntity.noContent().build();
 	}
