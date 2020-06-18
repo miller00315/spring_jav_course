@@ -1,6 +1,6 @@
-package com.miller.osWorks.exceptionHandler;
+package com.miller.osWorks.api.exceptionHandler;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +41,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 		
 		problem.setStatus(status.value());
 		problem.setTitle("Um ou mais campos estão inválidos, preencha coretamente");
-		problem.setLocalDateTime(LocalDateTime.now());
+		problem.setLocalDateTime(OffsetDateTime.now());
 		problem.setFields(fields);
 
 		return super.handleExceptionInternal(ex, problem, headers, status, request);
@@ -55,7 +55,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 		
 		problem.setStatus(status.value());
 		problem.setTitle(ex.getMessage());
-		problem.setLocalDateTime(LocalDateTime.now());
+		problem.setLocalDateTime(OffsetDateTime.now());
 		
 		return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
 	}
