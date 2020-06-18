@@ -2,6 +2,7 @@ package com.miller.osWorks.api.controller;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -18,6 +19,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.modelmapper.ModelMapper;
+
+import com.miller.osWorks.api.model.ServiceOrderInput;
+import com.miller.osWorks.api.model.ServiceOrderRepresentationModel;
 import com.miller.osWorks.domain.model.ServiceOrder;
 import com.miller.osWorks.domain.repository.ServiceOrderRepository;
 import com.miller.osWorks.domain.service.CrudServiceOrderService;
@@ -32,25 +37,61 @@ public class ServiceOrderController {
 	@Autowired
 	private ServiceOrderRepository serviceOrderRepository;
 	
+	@Autowired
+	private ModelMapper modelMapper;
+	
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public ServiceOrder create(@Valid @RequestBody ServiceOrder serviceOrder) {
-		return crudServiceOrder.create(serviceOrder);
+	public ServiceOrderRepresentationModel create(@Valid @RequestBody ServiceOrderInput serviceOrderInput) {
+		
+		ServiceOrder serviceOrder = toEntity(serviceOrderInput);
+		
+		return toRepresentationModel(crudServiceOrder.create(serviceOrder));
 	}
 	
 	@GetMapping
-	public List<ServiceOrder> list() {
-		return serviceOrderRepository.findAll();
+	public List<ServiceOrderRepresentationModel> list() {
+		return toServiceOrderRepresentationModel(serviceOrderRepository.findAll());
 	}
 	
 	@GetMapping("/{serviceOrderId}")
-	public ResponseEntity<ServiceOrder> search(@PathVariable Long serviceOrderId) {
+	public ResponseEntity<ServiceOrderRepresentationModel> search(@PathVariable Long serviceOrderId) {
 		Optional<ServiceOrder> serviceOrder = serviceOrderRepository.findById(serviceOrderId);
 		
 		if(!serviceOrder.isPresent()) {
 			return ResponseEntity.notFound().build();
 		}
 		
-		return ResponseEntity.ok(serviceOrder.get());
+		return ResponseEntity.ok(toRepresentationModel(serviceOrder.get()));
+	}
+	
+	@PutMapping
+	public ResponseEntity<ServiceOrderRepresentationModel> update(@PathVariable Long serviceOrderId, 
+			@Valid @RequestBody ServiceOrder serviceOrder) {
+		
+		if(!serviceOrderRepository.existsById(serviceOrderId)) {
+			return ResponseEntity.notFound().build();
+		}
+		
+		return null;
+	}
+	
+	@DeleteMapping
+	public void delete(@PathVariable Long serviceOrderId) {
+		
+	}
+	
+	private ServiceOrder toEntity(ServiceOrderInput serviceOrderInput) {
+		return  modelMapper.map(serviceOrderInput, ServiceOrder.class);
+	}
+	
+	private ServiceOrderRepresentationModel toRepresentationModel(ServiceOrder serviceOrder) {
+		return  modelMapper.map(serviceOrder, ServiceOrderRepresentationModel.class);
+	}
+	
+	private List<ServiceOrderRepresentationModel> toServiceOrderRepresentationModel(List<ServiceOrder> serviceOrders){
+		return serviceOrders.stream()
+				.map(serviceOrder -> toRepresentationModel(serviceOrder))
+				.collect(Collectors.toList());
 	}
 }

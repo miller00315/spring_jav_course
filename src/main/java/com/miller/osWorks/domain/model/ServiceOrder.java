@@ -89,21 +89,23 @@ public class ServiceOrder {
 	public void setStatus(StatusServiceOrder status) {
 		this.status = status;
 	}
-	public OffsetDateTime getOpenDate() {
+	
+	public OffsetDateTime getOpen_date() {
 		return open_date;
 	}
-	public void setOpenDate(OffsetDateTime open_date) {
+
+	public void setOpen_date(OffsetDateTime open_date) {
 		this.open_date = open_date;
 	}
-	
-	public OffsetDateTime getCloseDate() {
+
+	public OffsetDateTime getFinish_date() {
 		return finish_date;
 	}
-	
-	public void setCloseDate(OffsetDateTime finish_date) {
+
+	public void setFinish_date(OffsetDateTime finish_date) {
 		this.finish_date = finish_date;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

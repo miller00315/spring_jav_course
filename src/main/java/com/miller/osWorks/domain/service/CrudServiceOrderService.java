@@ -28,7 +28,7 @@ public class CrudServiceOrderService {
 		
 		serviceOrder.setClient(client);
 		serviceOrder.setStatus(StatusServiceOrder.OPENED);
-		serviceOrder.setOpenDate(OffsetDateTime.now());
+		serviceOrder.setOpen_date(OffsetDateTime.now());
 		
 		return serviceOrderRepository.save(serviceOrder);
 	}
