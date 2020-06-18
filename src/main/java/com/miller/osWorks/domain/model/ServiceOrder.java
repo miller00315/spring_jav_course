@@ -2,6 +2,8 @@ package com.miller.osWorks.domain.model;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -10,6 +12,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -19,6 +22,7 @@ import javax.validation.groups.Default;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.miller.osWorks.domain.ValidationGroups;
+import com.miller.osWorks.domain.exception.BussinessException;
 
 @Entity
 public class ServiceOrder {
@@ -49,6 +53,8 @@ public class ServiceOrder {
 	@JsonProperty(access = Access.READ_ONLY)
 	private OffsetDateTime finish_date;
 	
+	@OneToMany(mappedBy = "service_order")
+	private List<Comment> comments = new ArrayList<>();
 	
 	public Long getId() {
 		return id;
@@ -105,6 +111,15 @@ public class ServiceOrder {
 	public void setFinish_date(OffsetDateTime finish_date) {
 		this.finish_date = finish_date;
 	}
+	
+	
+	public List<Comment> getComments() {
+		return comments;
+	}
+
+	public void setComments(List<Comment> comments) {
+		this.comments = comments;
+	}
 
 	@Override
 	public int hashCode() {
@@ -129,5 +144,18 @@ public class ServiceOrder {
 		} else if (!id.equals(other.id))
 			return false;
 		return true;
+	}
+	
+	public boolean cantBeFinish() {
+		return !StatusServiceOrder.OPENED.equals(this.getStatus());
+	}
+
+	public void finish() {
+		if(this.cantBeFinish()) {
+			throw new BussinessException("A ordem de serviço não pode ser finalizada");	
+		}
+		
+		this.setStatus(StatusServiceOrder.FINISHED);
+		this.setFinish_date(OffsetDateTime.now());
 	}
 }

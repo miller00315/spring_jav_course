@@ -65,20 +65,29 @@ public class ServiceOrderController {
 		return ResponseEntity.ok(toRepresentationModel(serviceOrder.get()));
 	}
 	
-	@PutMapping
-	public ResponseEntity<ServiceOrderRepresentationModel> update(@PathVariable Long serviceOrderId, 
-			@Valid @RequestBody ServiceOrder serviceOrder) {
+	@PutMapping("/{service_order_id}/finish")
+	public ResponseEntity<Void> finish(@PathVariable Long service_order_id) {
 		
-		if(!serviceOrderRepository.existsById(serviceOrderId)) {
+		Optional<ServiceOrder> serviceOrder = serviceOrderRepository.findById(service_order_id);
+		
+		if(!serviceOrder.isPresent()) {
 			return ResponseEntity.notFound().build();
 		}
 		
-		return null;
+		crudServiceOrder.finish(service_order_id);
+		
+		return ResponseEntity.noContent().build();
 	}
 	
-	@DeleteMapping
-	public void delete(@PathVariable Long serviceOrderId) {
+	@DeleteMapping("/{service_order_id}")
+	public ResponseEntity<Void> delete(@PathVariable Long service_order_id) {
+		if(!serviceOrderRepository.existsById(service_order_id)) {
+			return ResponseEntity.notFound().build();
+		}
 		
+		crudServiceOrder.delete(service_order_id);
+		
+		return ResponseEntity.noContent().build();
 	}
 	
 	private ServiceOrder toEntity(ServiceOrderInput serviceOrderInput) {

@@ -18,6 +18,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import com.miller.osWorks.domain.exception.BussinessException;
+import com.miller.osWorks.domain.exception.NotFoundEntityException;
 
 @ControllerAdvice
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
@@ -51,12 +52,36 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 	public ResponseEntity<Object> handlerBussiness(BussinessException ex, WebRequest request) {
 		
 		HttpStatus status = HttpStatus.BAD_REQUEST;
+		
+		return handleExceptionInternal(ex, createProblem(status, ex, null, null), new HttpHeaders(), status, request);
+	}
+	
+	@ExceptionHandler(NotFoundEntityException.class)
+	public ResponseEntity<Object> handlerNotFoundEntityException(NotFoundEntityException ex, WebRequest request) {
+		
+		HttpStatus status = HttpStatus.NOT_FOUND;
+		
+		return handleExceptionInternal(ex, createProblem(status, ex, null, null), new HttpHeaders(), status, request);
+	}
+	
+	private Problem createProblem(HttpStatus httpStatus, RuntimeException ex, String title, ArrayList<Problem.Field> fields) {
+		
 		Problem problem = new Problem();
 		
-		problem.setStatus(status.value());
+		problem.setStatus(httpStatus.value());
 		problem.setTitle(ex.getMessage());
 		problem.setLocalDateTime(OffsetDateTime.now());
 		
-		return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
+		if(title != null) {
+			problem.setTitle(title);
+		}
+		
+		if(fields != null) {
+			problem.setFields(fields);
+		}
+		
+		return problem;
+		
 	}
+
 }
